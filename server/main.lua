@@ -166,6 +166,6 @@ RegisterServerEvent('setjob', function(job, grade, target)
         local xTarget = ESX.GetPlayerFromId(target)
         xTarget.setJob(job, grade)
         TriggerClientEvent('notification', target,
-            xPlayer.getJob().label .. ' - ' .. xPlayer.getJob().grade_label .. ' ' .. Strings.hasbeen)
+            xTarget.getJob().label .. ' - ' .. xTarget.getJob().grade_label .. ' ' .. Strings.hasbeen)
     end
 end)
