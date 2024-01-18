@@ -1,19 +1,21 @@
 Config = {
     reportcommand = 'sendreport',
 
-    DozvoljeneAdminGrupe = {
+    AllowedGroups = {
         ['admin'] = true,
     },
 
+    Webhook = 'https://discord.com/api/webhooks/1138152491138170903/017z47vRl-qHwX_bX0rZ8OJe_0yO7PuNOS098P83VbHld6CcgY-8BvvjpwrLA32lCLZh',
+
     replist = 'replist',
 
-    Ikonice = {
+    Icons = {
         ['bug'] = 'bug',
         ['pitanje'] = 'question',
         ['prijaviig'] = 'bullhorn'
     },
 
-    IkoniceBoja = {
+    IconsColor = {
         ['bug'] = '#Ee5026',
         ['pitanje'] = '#1dc978',
         ['prijaviig'] = '#Ee9b26'
@@ -28,7 +30,7 @@ Config = {
         })
     end,
 
-    Opcije = {
+    Options = {
         {
             value = 'pitanje',
             label = 'Question'
