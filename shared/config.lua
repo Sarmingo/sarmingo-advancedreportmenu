@@ -5,7 +5,7 @@ Config = {
         ['admin'] = true,
     },
 
-    Webhook = 'https://discord.com/api/webhooks/1138152491138170903/017z47vRl-qHwX_bX0rZ8OJe_0yO7PuNOS098P83VbHld6CcgY-8BvvjpwrLA32lCLZh',
+    Webhook = '',
 
     replist = 'replist',
 
