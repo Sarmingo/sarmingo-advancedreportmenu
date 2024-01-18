@@ -1,4 +1,4 @@
-ListaReportova = {}
+ListOfReports = {}
 local teleportBack = false
 local bringBack = false
 
@@ -8,14 +8,12 @@ end
 
 RegisterNetEvent('sarmingo-report:salji-novi-report')
 AddEventHandler('sarmingo-report:salji-novi-report', function(noviReport)
-    insert(ListaReportova, noviReport)
-    Config.Notifications(Strings.newreport .. ' ' .. #ListaReportova)
+    insert(ListOfReports, noviReport)
+    Config.Notifications(Strings.newreport .. ' ' .. #ListOfReports)
 end)
 
-
-
 ValidOption = function(option)
-    for _, v in ipairs(Config.Opcije) do
+    for _, v in ipairs(Config.Options) do
         if option == v.value then
             return true
         end
@@ -24,23 +22,21 @@ ValidOption = function(option)
 end
 
 removeReport = function(reportId, kategorija, opis, naslov)
-    for i, report in ipairs(ListaReportova) do
+    for i, report in ipairs(ListOfReports) do
         if report.id == reportId and report.kategorija == kategorija and report.opis == opis and report.naslov == naslov then
-            table.remove(ListaReportova, i)
+            table.remove(ListOfReports, i)
             Config.Notifications(Strings.removereport)
             break
         end
     end
 end
 
-
-
 RegisterCommand(Config.reportcommand, function()
     local input = lib.inputDialog(Strings.sendnewreport, {
         {
             type = 'select',
             label = Strings.category,
-            options = Config.Opcije,
+            options = Config.Options,
             required = true
         },
         { type = 'input', label = Strings.title,       required = true, min = 10, max = 30 },
@@ -48,24 +44,27 @@ RegisterCommand(Config.reportcommand, function()
     })
 
     if ValidOption(input[1]) then
-        TriggerServerEvent('napravitabelu', input[3], input[2], input[1])
+        exports['screenshot-basic']:requestScreenshotUpload(Config.Webhook, 'files[]', {encoding = 'jpg'}, function(data)
+            local resp = json.decode(data)
+            local imageUrl = resp.attachments[1].url
+            TriggerServerEvent('createtable', input[3], input[2], input[1], imageUrl)
+        end)    
     end
 end, false)
 
 
-RegisterNetEvent('otvorimeni', function()
+RegisterNetEvent('openmenu', function()
     local list = {}
-    for i = 1, #ListaReportova do
-        local v = ListaReportova[i]
+    for i = 1, #ListOfReports do
+        local v = ListOfReports[i]
         if v then
             insert(list, {
                 title = 'Report #' .. v.id .. Config.Objasnjenje[v.kategorija],
-                description = Strings.id ..
-                    ': ' .. v.id .. '｜' .. Strings.name .. ': ' .. v.ime .. '｜' .. Strings.time .. ': ' .. v.vrijeme,
-                icon = Config.Ikonice[v.kategorija],
-                iconColor = Config.IkoniceBoja[v.kategorija],
-                event = 'novimeni',
-                args = { id = v.id, kategorija = v.kategorija, ime = v.ime, vrijeme = v.vrijeme, naslov = v.naslov, opis = v.opis, igime = v.igime, posao = v.posao, banka = v.banka, novac = v.novac, grupa = v.grupa, identifier = v.identifier }
+                description = Strings.id .. ': ' .. v.id .. '｜' .. Strings.name .. ': ' .. v.ime .. '｜' .. Strings.time .. ': ' .. v.vrijeme,
+                icon = Config.Icons[v.kategorija],
+                iconColor = Config.IconsColor[v.kategorija],
+                event = 'newmenu',
+                args = { id = v.id, image = v.image, kategorija = v.kategorija, ime = v.ime, vrijeme = v.vrijeme, naslov = v.naslov, opis = v.opis, igime = v.igime, posao = v.posao, banka = v.banka, novac = v.novac, grupa = v.grupa, identifier = v.identifier }
             })
         end
     end
@@ -80,13 +79,13 @@ RegisterNetEvent('otvorimeni', function()
 end)
 
 RegisterCommand(Config.replist, function()
-    TriggerEvent('otvorimeni')
+    TriggerEvent('openmenu')
 end, false)
 
 
-RegisterNetEvent('novimeni', function(args)
+RegisterNetEvent('newmenu', function(args)
     lib.registerContext({
-        id = 'novimeni',
+        id = 'newmenu',
         title = Strings.report .. ' #' .. args.id,
         options = {
             {
@@ -100,7 +99,7 @@ RegisterNetEvent('novimeni', function(args)
                         cancel = false
                     })
                     if alert == 'confirm' then
-                        lib.showContext('novimeni')
+                        lib.showContext('newmenu')
                     end
                 end
             },
@@ -119,7 +118,7 @@ RegisterNetEvent('novimeni', function(args)
                         cancel = false
                     })
                     if alert == 'confirm' then
-                        lib.showContext('novimeni')
+                        lib.showContext('newmenu')
                     end
                 end
             },
@@ -138,6 +137,13 @@ RegisterNetEvent('novimeni', function(args)
 
                     if not input then return end
                     TriggerServerEvent('posaljikeporu', args.id, input[1])
+                end
+            },
+            {
+                title = Strings.image,
+                icon = 'image',
+                onSelect = function()
+                    TriggerEvent('show_image', args.image)
                 end
             },
             {
@@ -193,7 +199,6 @@ RegisterNetEvent('novimeni', function(args)
                 onSelect = function()
                     TriggerServerEvent('bringplayer', args.id)
                     bringBack = true
-                    print(bringBack)
                 end
             },
             {
@@ -237,7 +242,7 @@ RegisterNetEvent('novimeni', function(args)
         }
     })
 
-    lib.showContext('novimeni')
+    lib.showContext('newmenu')
 end)
 
 RegisterNetEvent('posaljiporuku', function(poruka)
@@ -301,7 +306,7 @@ AddEventHandler('receiveJobData', function(target)
                         })
                         if gradeInput and gradeInput[1] then
                             TriggerServerEvent('setjob', input[1], gradeInput[1], target)
-                            lib.showContext('novimeni')
+                            lib.showContext('newmenu')
                         else
                         end
                     else
