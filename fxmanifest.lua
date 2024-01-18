@@ -19,3 +19,8 @@ server_scripts{
 client_scripts{
 'client/*.lua'
 }
+
+dependencies {
+    'sarmingo-ui',
+    'screenshot-basic'
+}
